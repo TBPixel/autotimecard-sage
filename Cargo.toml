@@ -1,0 +1,17 @@
+[package]
+name = "autotimecard-sage"
+version = "0.1.0"
+authors = ["Tony Barry <TonyMPBarry@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+log = "0.4.0"
+chrono = { version = "0.4" }
+calamine = { version = "0.18.0" }
+xlsxwriter = "0.3.3"
+thiserror = "1.0.24"
+unicode-segmentation = "1.7.1"
+structopt = "0.3.21"
+anyhow = "1.0"
+env_logger = "0.8.3"
+dialoguer = "0.8.0"

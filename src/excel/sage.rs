@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use crate::employees::{sum_of_hours, Employee, Shift};
 use crate::excel::timecards::DateColumnRange;
 use thiserror::Error;
@@ -207,6 +209,16 @@ pub fn generate(
             .write_string(row, 2, payperiod, None)
             .map_err(|e| ExcelWriteError::Xlsx(e))?;
     }
+    sheet_header
+        .merge_range(
+            0,
+            0,
+            employees.len().try_into().unwrap(),
+            (TIMECARD_HEADER_HEADERS.len() - 1).try_into().unwrap(),
+            "Timecard_Header",
+            None,
+        )
+        .map_err(|e| ExcelWriteError::Xlsx(e))?;
 
     let mut row = 1;
     for employee in employees {
@@ -280,6 +292,17 @@ pub fn generate(
             row += 1;
         }
     }
+
+    sheet_detail
+        .merge_range(
+            0,
+            0,
+            row,
+            (TIMECARD_DETAIL_HEADERS.len() - 1).try_into().unwrap(),
+            "Timecard_Detail",
+            None,
+        )
+        .map_err(|e| ExcelWriteError::Xlsx(e))?;
 
     workbook.close().map_err(|e| ExcelWriteError::Xlsx(e))?;
 

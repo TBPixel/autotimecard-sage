@@ -7,7 +7,10 @@ use env_logger::Env;
 use excel::timecards::DateColumnRange;
 use structopt::StructOpt;
 
-use crate::excel::{from_column_letter, to_column_letter};
+use crate::{
+    employees::sum_of_hours,
+    excel::{from_column_letter, to_column_letter},
+};
 
 mod employees;
 mod excel;
@@ -58,7 +61,14 @@ fn main() -> anyhow::Result<()> {
         args.output = Some("output.xlsx".to_string());
     }
 
-    info!("Total employees: {}", employees_vec.len());
+    info!(
+        "Total employees: {}",
+        employees_vec
+            .iter()
+            .filter(|e| sum_of_hours(e.hours.clone()) > 0.0)
+            .collect::<Vec<_>>()
+            .len()
+    );
     for e in employees_vec.clone() {
         debug!("{:?}", e.id);
         for shift in e.hours {

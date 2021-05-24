@@ -4,7 +4,7 @@ pub mod timecards;
 use thiserror::Error;
 use unicode_segmentation::UnicodeSegmentation;
 
-const ASCII_LETTERS: &'static str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const ASCII_LETTERS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #[derive(Error, Debug)]
 pub enum ExcelError {
@@ -31,8 +31,8 @@ pub fn to_column_letter(col: i32) -> String {
             string.push('Z');
             n = (n / 26) - 1;
         } else {
-            string.push(((rem - 1) + 'A' as u8) as char);
-            n = n / 26;
+            string.push(((rem - 1) + b'A') as char);
+            n /= 26;
         }
     }
 
@@ -43,7 +43,7 @@ pub fn from_column_letter(col: String) -> i32 {
     let mut num: i32 = 0;
     for c in col.chars() {
         if ASCII_LETTERS.contains(c) {
-            num = num * 26 + (c as u8 - 'A' as u8) as i32 + 1
+            num = num * 26 + (c as u8 - b'A') as i32 + 1
         }
     }
 

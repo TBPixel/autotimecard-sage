@@ -73,7 +73,7 @@ pub fn parse_date_range<'a>(
 ) -> Result<DateColumnRange, ExcelError> {
     let result = workbook
         .worksheet_range(&sheet)
-        .ok_or(ExcelError::WorksheetNotFound(sheet.to_string()))?;
+        .ok_or_else(|| ExcelError::WorksheetNotFound(sheet.to_string()))?;
     let range = match result {
         Ok(r) => r,
         Err(e) => match e {
@@ -157,7 +157,7 @@ impl DateColumnRange {
             return false;
         }
 
-        return true;
+        true
     }
 
     pub fn date_from_column(&self, col: usize) -> Option<Date<Utc>> {
@@ -182,12 +182,10 @@ impl Iterator for DateColumnRange {
     // next() is the only required method
     fn next(&mut self) -> Option<Self::Item> {
         let date = self.date_from_column(self.index + self.head);
-        if date.is_none() {
-            return None;
+        if date.is_some() {
+            // Increment our count. This is why we started at zero.
+            self.index += 1;
         }
-
-        // Increment our count. This is why we started at zero.
-        self.index += 1;
 
         date
     }

@@ -15,7 +15,7 @@ use crate::{
 mod employees;
 mod excel;
 
-const DATE_FORMAT: &'static str = "%B %d, %Y";
+const DATE_FORMAT: &str = "%B %d, %Y";
 
 #[derive(Debug, StructOpt)]
 struct Cli {
@@ -66,8 +66,7 @@ fn main() -> anyhow::Result<()> {
         employees_vec
             .iter()
             .filter(|e| sum_of_hours(e.hours.clone()) > 0.0)
-            .collect::<Vec<_>>()
-            .len()
+            .count()
     );
     for e in employees_vec.clone() {
         debug!("{:?}", e.id);
@@ -78,7 +77,7 @@ fn main() -> anyhow::Result<()> {
 
     let filename = args
         .output
-        .with_context(|| format!("output filename was specified but is blank!"))?;
+        .with_context(|| "output filename was specified but is blank!")?;
     let workbook = xlsxwriter::Workbook::new(&filename);
     excel::sage::generate(workbook, &args.sheet, employees_vec, date_range)
         .with_context(|| "an error occurred while trying try generate spreadsheet")?;
@@ -118,7 +117,7 @@ fn date_range_correct_confirmation<'a>(
             .with_prompt("What is the start date?")
             .interact_text()?;
         let start_naive = chrono::NaiveDate::parse_from_str(&start_input, DATE_FORMAT)
-            .with_context(|| format!("please enter date in the format: January 01, 2021"))?;
+            .with_context(|| "please enter date in the format: January 01, 2021")?;
         let start_date = chrono::Date::<chrono::Utc>::from_utc(start_naive, chrono::Utc);
         date_range.start = Some(start_date);
     }

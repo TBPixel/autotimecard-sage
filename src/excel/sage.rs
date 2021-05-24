@@ -169,22 +169,20 @@ pub fn generate(
 ) -> Result<(), ExcelWriteError> {
     let mut sheet_header = workbook
         .add_worksheet(Some("Timecard_Header"))
-        .map_err(|e| ExcelWriteError::Xlsx(e))?;
-    for i in 0..TIMECARD_HEADER_HEADERS.len() {
-        let heading = TIMECARD_HEADER_HEADERS[i];
+        .map_err(ExcelWriteError::Xlsx)?;
+    for (i, heading) in TIMECARD_HEADER_HEADERS.iter().enumerate() {
         sheet_header
             .write_string(0, i as u16, heading, None)
-            .map_err(|e| ExcelWriteError::Xlsx(e))?;
+            .map_err(ExcelWriteError::Xlsx)?;
     }
 
     let mut sheet_detail = workbook
         .add_worksheet(Some("Timecard_Detail"))
-        .map_err(|e| ExcelWriteError::Xlsx(e))?;
-    for i in 0..TIMECARD_DETAIL_HEADERS.len() {
-        let heading = TIMECARD_DETAIL_HEADERS[i];
+        .map_err(ExcelWriteError::Xlsx)?;
+    for (i, heading) in TIMECARD_DETAIL_HEADERS.iter().enumerate() {
         sheet_detail
             .write_string(0, i as u16, heading, None)
-            .map_err(|e| ExcelWriteError::Xlsx(e))?;
+            .map_err(ExcelWriteError::Xlsx)?;
     }
 
     let (_, end) = date_range.range().ok_or(ExcelWriteError::Unexpected)?;
@@ -194,20 +192,19 @@ pub fn generate(
         .into_iter()
         .filter(|e| sum_of_hours(e.hours.clone()) > 0.0)
         .collect();
-    for i in 0..employees.len() {
-        let employee = employees[i].clone();
+    for (i, employee) in employees.iter().enumerate() {
         let row = i as u32 + 1;
 
         // Timecard_Header
         sheet_header
             .write_string(row, 0, &employee.id, None)
-            .map_err(|e| ExcelWriteError::Xlsx(e))?;
+            .map_err(ExcelWriteError::Xlsx)?;
         sheet_header
             .write_string(row, 1, &end_formatted, None)
-            .map_err(|e| ExcelWriteError::Xlsx(e))?;
+            .map_err(ExcelWriteError::Xlsx)?;
         sheet_header
             .write_string(row, 2, payperiod, None)
-            .map_err(|e| ExcelWriteError::Xlsx(e))?;
+            .map_err(ExcelWriteError::Xlsx)?;
     }
     sheet_header
         .merge_range(
@@ -218,7 +215,7 @@ pub fn generate(
             "Timecard_Header",
             None,
         )
-        .map_err(|e| ExcelWriteError::Xlsx(e))?;
+        .map_err(ExcelWriteError::Xlsx)?;
 
     let mut row = 1;
     for employee in employees {
@@ -235,59 +232,59 @@ pub fn generate(
             // A
             sheet_detail
                 .write_string(row, 0, &employee.id, None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // B
             sheet_detail
                 .write_string(row, 1, &end_formatted, None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // C
             sheet_detail
                 .write_string(row, 2, payperiod, None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // D
             sheet_detail
                 .write_string(row, 3, &format!("{}", (i + 1) * 1000), None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // E
             sheet_detail
                 .write_string(row, 4, "2", None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // E
             sheet_detail
                 .write_string(row, 5, "HRLY", None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // F
             sheet_detail
                 .write_string(row, 5, "HRLY", None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // H
             sheet_detail
                 .write_string(row, 7, &shift.date.format(DATE_FORMAT).to_string(), None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // N
             sheet_detail
                 .write_string(row, 13, &format!("{}", shift.sum_of_shift()), None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // T
             sheet_detail
                 .write_string(row, 19, &employee.exp_account, None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // V
             sheet_detail
                 .write_string(row, 21, &employee.exp_account, None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // Y
             sheet_detail
                 .write_string(row, 24, &employee.overtime_schedule, None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // AV
             sheet_detail
                 .write_string(row, 47, "1", None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
             // BB
             sheet_detail
                 .write_string(row, 53, &employee.dist_code, None)
-                .map_err(|e| ExcelWriteError::Xlsx(e))?;
+                .map_err(ExcelWriteError::Xlsx)?;
 
             row += 1;
         }
@@ -302,9 +299,9 @@ pub fn generate(
             "Timecard_Detail",
             None,
         )
-        .map_err(|e| ExcelWriteError::Xlsx(e))?;
+        .map_err(ExcelWriteError::Xlsx)?;
 
-    workbook.close().map_err(|e| ExcelWriteError::Xlsx(e))?;
+    workbook.close().map_err(ExcelWriteError::Xlsx)?;
 
     Ok(())
 }

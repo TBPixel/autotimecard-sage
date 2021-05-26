@@ -23,16 +23,15 @@ struct Cli {
     #[structopt(parse(from_os_str))]
     path: std::path::PathBuf,
     output: Option<String>,
+    #[structopt(short = "v")]
+    verbose: bool,
 }
 
 fn main() -> anyhow::Result<()> {
-    let env = Env::default().filter_or("RUST_LOG", "info");
-    env_logger::init_from_env(env);
-
-    trace!("main start");
-
     let mut args = Cli::from_args();
-    trace!("parsed args {:?}", args);
+
+    let env = Env::default().filter_or("RUST_LOG", if args.verbose { "TRACE" } else { "INFO" });
+    env_logger::init_from_env(env);
 
     let workbook = &mut calamine::open_workbook_auto(args.path.clone())
         .with_context(|| format!("could not open excel workbook at `{:?}`", args.path.clone()))?;

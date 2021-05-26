@@ -2,6 +2,7 @@ use std::convert::TryInto;
 
 use crate::employees::{sum_of_hours, Employee, Shift};
 use crate::excel::timecards::DateColumnRange;
+use crate::excel::to_column_letter;
 use thiserror::Error;
 use xlsxwriter::{Workbook, XlsxError};
 
@@ -206,16 +207,15 @@ pub fn generate(
             .write_string(row, 2, payperiod, None)
             .map_err(ExcelWriteError::Xlsx)?;
     }
-    sheet_header
-        .merge_range(
-            0,
-            0,
-            employees.len().try_into().unwrap(),
-            (TIMECARD_HEADER_HEADERS.len() - 1).try_into().unwrap(),
-            "Timecard_Header",
-            None,
-        )
-        .map_err(ExcelWriteError::Xlsx)?;
+    let formula = format!(
+            "=Timecard_Header!${}${}:${}${}",
+            to_column_letter(0),
+            1,
+            to_column_letter((TIMECARD_HEADER_HEADERS.len() - 1).try_into().unwrap()),
+            employees.len() + 1,
+    );
+    trace!("define_name `Timecard_Header` with formula: `{}`", formula);
+    workbook.define_name("Timecard_Header", &formula).map_err(ExcelWriteError::Xlsx)?;
 
     let mut row = 1;
     for employee in employees {
@@ -290,16 +290,15 @@ pub fn generate(
         }
     }
 
-    sheet_detail
-        .merge_range(
-            0,
-            0,
+    let formula = format!(
+            "=Timecard_Detail!${}${}:${}${}",
+            to_column_letter(0),
+            1,
+            to_column_letter((TIMECARD_DETAIL_HEADERS.len() - 1).try_into().unwrap()),
             row,
-            (TIMECARD_DETAIL_HEADERS.len() - 1).try_into().unwrap(),
-            "Timecard_Detail",
-            None,
-        )
-        .map_err(ExcelWriteError::Xlsx)?;
+    );
+    trace!("define_name `Timecard_Detail` with formula: `{}`", formula);
+    workbook.define_name("Timecard_Detail", &formula).map_err(ExcelWriteError::Xlsx)?;
 
     workbook.close().map_err(ExcelWriteError::Xlsx)?;
 

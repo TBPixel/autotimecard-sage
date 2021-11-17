@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 
-use crate::employees::{sum_of_hours, Employee, Shift};
+use crate::employees::{sum_of_hours, Employee};
 use crate::excel::timecards::DateColumnRange;
 use crate::excel::to_column_letter;
 use thiserror::Error;
@@ -220,13 +220,12 @@ pub fn generate(
     let mut row = 1;
     for employee in employees {
         // Timecard_Detail
-        let shifts: Vec<Shift> = employee
+        
+        for i in 0..employee
             .hours
             .clone()
             .into_iter()
-            .filter(|shift| shift.sum_of_shift() > 0.0)
-            .collect();
-        for i in 0..shifts.len() {
+            .filter(|shift| shift.sum_of_shift() > 0.0).count() {
             let shift = employee.hours[i];
 
             // A

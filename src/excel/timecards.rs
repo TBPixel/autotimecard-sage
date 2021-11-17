@@ -12,7 +12,7 @@ pub fn parse_worksheet<'a>(
     let mut map: HashMap<usize, Employee> = HashMap::new();
 
     // Read whole worksheet data and provide some statistics
-    if let Some(Ok(range)) = workbook.worksheet_range(&sheet) {
+    if let Some(Ok(range)) = workbook.worksheet_range(sheet) {
         for (row, col, cell) in range.cells() {
             match cell {
                 DataType::String(txt) => {
@@ -72,7 +72,7 @@ pub fn parse_date_range<'a>(
     sheet: &'a str,
 ) -> Result<DateColumnRange, ExcelError> {
     let result = workbook
-        .worksheet_range(&sheet)
+        .worksheet_range(sheet)
         .ok_or_else(|| ExcelError::WorksheetNotFound(sheet.to_string()))?;
     let range = match result {
         Ok(r) => r,
